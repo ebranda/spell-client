@@ -50,7 +50,7 @@ def labelRun(run, labelName):
     client.api.add_label_for_run(getId(run), labelName)
 
 
-def systemcheck(args):
+def systemcheck():
     print("Welcome. Use this application to communicate with the Spell environment.")
     print("Communicating with Spell...")
     print(whoami())
