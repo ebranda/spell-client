@@ -6,6 +6,7 @@ from app import filesystem as localfs
 
 
 paths = {
+    "imagesLocal": localfs.filepath("images"),
     "datasetLocal": localfs.filepath("images", "pix2pix-dataset"),
     "datasetLocalA": localfs.filepath("images", "pix2pix-dataset", "A"),
     "datasetLocalB": localfs.filepath("images", "pix2pix-dataset", "B"),
@@ -21,6 +22,8 @@ def upload(machineType="CPU"):
     print("Preparing to upload images...")
     
     # Run validation
+    if not localfs.exists(paths["imagesLocal"]): 
+        localfs.mkdir(paths["imagesLocal"])
     if not localfs.exists(paths["datasetLocal"]): 
         localfs.mkdir(paths["datasetLocal"])
     if not localfs.exists(paths["datasetLocalA"]): 
@@ -28,9 +31,9 @@ def upload(machineType="CPU"):
     if not localfs.exists(paths["datasetLocalB"]): 
         localfs.mkdir(paths["datasetLocalB"])
     if localfs.isEmpty(paths["datasetLocalA"]):
-        raise RuntimeException("Missing images in dataset folder A")
+        raise RuntimeError("Missing images in dataset folder A")
     if localfs.isEmpty(paths["datasetLocalB"]):
-        raise RuntimeException("Missing images in dataset folder B")
+        raise RuntimeError("Missing images in dataset folder B")
     def validateFilenames(names):
         for n in names:
             if " " in n:

@@ -8,9 +8,11 @@ from app import filesystem as localfs
 
 
 
-imagesBaseLocal = localfs.filepath("images", "style-transfer-images")
+imagesLocal = localfs.filepath("images")
+imagesBaseLocal = localfs.filepath(imagesLocal, "style-transfer-images")
 imagesBaseRemote = "uploads/style-transfer-images"
 paths = {
+    "imagesLocal": imagesLocal,
     "imagesBaseLocal": imagesBaseLocal,
     "stylesDirLocal": localfs.filepath(imagesBaseLocal, "styles"),
     "contentDirLocal": localfs.filepath(imagesBaseLocal, "content"),
@@ -133,6 +135,8 @@ def _neuralStyleCmd(args, styleImg, contentImg):
 
 
 def _validateLocal():
+    if not localfs.exists(paths["imagesLocal"]): 
+        localfs.mkdir(paths["imagesLocal"])
     if not localfs.exists(paths["imagesBaseLocal"]): 
         localfs.mkdir(paths["imagesBaseLocal"])
     if not localfs.exists(paths["stylesDirLocal"]): 

@@ -64,11 +64,11 @@ def main():
     if func:
         print ("\n########### Spell Client (version {}) ###########".format(__version__))
         args = sys.argv[2:] if len(sys.argv) > 2 else []
-        #try:
+        try:
             #spell.cmdline.debug = True
-        func(args)
-        #except Exception as e:
-        #    print(e)
+            func(args)
+        except Exception as e:
+            print(e)
         print("\n")
     else:
         print("No such command [{}]".format(commandStr))
