@@ -6,7 +6,6 @@ from app import spellstyletransfer as styletransfer
 from app import spellpix2pix as pix2pix
 from app import utils
 from app._version import __version__
-    
 
 
 ########################

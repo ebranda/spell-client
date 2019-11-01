@@ -24,7 +24,16 @@ paths = {
     "vggFileRemoteName": "imagenet-vgg-verydeep-19.mat"
 }
 
+if not localfs.exists(paths["imagesLocal"]): 
+    localfs.mkdir(paths["imagesLocal"])
+if not localfs.exists(paths["imagesBaseLocal"]): 
+    localfs.mkdir(paths["imagesBaseLocal"])
+if not localfs.exists(paths["stylesDirLocal"]): 
+    localfs.mkdir(paths["stylesDirLocal"])
+if not localfs.exists(paths["contentDirLocal"]): 
+    localfs.mkdir(paths["contentDirLocal"])
 
+        
 def upload(machineType="CPU"):
     print("Uploading images...")
     # Run validation
@@ -135,14 +144,6 @@ def _neuralStyleCmd(args, styleImg, contentImg):
 
 
 def _validateLocal():
-    if not localfs.exists(paths["imagesLocal"]): 
-        localfs.mkdir(paths["imagesLocal"])
-    if not localfs.exists(paths["imagesBaseLocal"]): 
-        localfs.mkdir(paths["imagesBaseLocal"])
-    if not localfs.exists(paths["stylesDirLocal"]): 
-        localfs.mkdir(paths["stylesDirLocal"])
-    if not localfs.exists(paths["contentDirLocal"]): 
-        localfs.mkdir(paths["contentDirLocal"])
     styleImages = localfs.ls(paths["stylesDirLocal"])
     contentImages = localfs.ls(paths["contentDirLocal"])
     if not styleImages:

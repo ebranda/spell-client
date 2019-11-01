@@ -4,6 +4,7 @@ images/results/log-run-*
 *.png
 *.jpg
 commands.txt
+images/
 images/results-archive
 images/style-transfer-images-inactive
 images/image-library

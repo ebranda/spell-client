@@ -13,6 +13,15 @@ paths = {
     "datasetRemote": "uploads/pix2pix-dataset"
 }
 
+if not localfs.exists(paths["imagesLocal"]): 
+    localfs.mkdir(paths["imagesLocal"])
+if not localfs.exists(paths["datasetLocal"]): 
+    localfs.mkdir(paths["datasetLocal"])
+if not localfs.exists(paths["datasetLocalA"]): 
+    localfs.mkdir(paths["datasetLocalA"])
+if not localfs.exists(paths["datasetLocalB"]): 
+    localfs.mkdir(paths["datasetLocalB"])
+
 
 def upload(machineType="CPU"):
     """
@@ -22,14 +31,6 @@ def upload(machineType="CPU"):
     print("Preparing to upload images...")
     
     # Run validation
-    if not localfs.exists(paths["imagesLocal"]): 
-        localfs.mkdir(paths["imagesLocal"])
-    if not localfs.exists(paths["datasetLocal"]): 
-        localfs.mkdir(paths["datasetLocal"])
-    if not localfs.exists(paths["datasetLocalA"]): 
-        localfs.mkdir(paths["datasetLocalA"])
-    if not localfs.exists(paths["datasetLocalB"]): 
-        localfs.mkdir(paths["datasetLocalB"])
     if localfs.isEmpty(paths["datasetLocalA"]):
         raise RuntimeError("Missing images in dataset folder A")
     if localfs.isEmpty(paths["datasetLocalB"]):

@@ -53,8 +53,8 @@ def labelRun(run, labelName):
 def systemcheck():
     print("Welcome. Use this application to communicate with the Spell environment.")
     print("Communicating with Spell...")
-    print(whoami())
-    print("Done system check.")
+    print("  Welcome, "+whoami())
+    print("System check successful.")
 
     
 def rm(path):
