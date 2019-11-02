@@ -34,7 +34,10 @@ def rm(path):
 
 
 def cacheSet(key, val):
-    cacheFile = filepath("app", "cache", key)
+    d = filepath("app", "cache")
+    if not exists(d):
+        mkdir(d)
+    cacheFile = filepath(d, key)
     f = open(cacheFile, "w")
     f.write(str(val))
     f.close()
@@ -46,3 +49,4 @@ def cacheGet(key):
         f = open(cacheFile, "r")
         return f.read()
     return None
+

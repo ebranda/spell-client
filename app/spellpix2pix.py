@@ -81,6 +81,41 @@ def train(pix2pixArgs, machineType="K80"):
     print(spell.getRunStartedMessage(run))
 
 
+def downloadlatest(args):
+    """
+    Downloads the most recent output image from a training run.
+    
+    """
+    print("Downloading latest training output image...")
+    if args:
+        runId = args[0]
+        if not utils.isInteger(runId):
+            raise ValueError("Run ID integer parameter is expected")
+        localfs.cacheSet("pix2pixTrainingRunId", runId)
+    else:
+        runId = localfs.cacheGet("pix2pixTrainingRunId")
+        if not runId:
+            raise RuntimeError("Unable to find run ID in local cache.")
+    remoteDir = "runs/{}/output/images".format(runId)
+    if not spell.exists(remoteDir):
+        print("No server output directory available yet.")
+        return
+    def getOutputFile():
+        listing = spell.ls(remoteDir)
+        listing.sort()
+        return listing[-2]
+    f = getOutputFile()
+    attempts = 0
+    while "output" not in f and attempts < 10:
+        f = getOutputFile()
+        attempts += 1
+    if "output" not in f:
+        raise RuntimeError("Unable to find an output file on server.")
+    localDir = localfs.filepath(paths["imagesLocal"], "pix2pix-results")
+    spell.download(remoteDir+"/"+f, localDir)
+    print("Latest output file downloaded to '{}'.".format(localfs.filepath(localDir, f)))
+
+
 def export(args, machineType="CPU"):
     """
     Runs a pix2pix model export job on Spell. Automatically downloads

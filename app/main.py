@@ -45,6 +45,9 @@ def command_pix2pixdatasetrunid(args):
 def command_pix2pixtrain(args):
     pix2pix.train(args)
 
+def command_pix2pixdownloadlatest(args):
+    pix2pix.downloadlatest(args)
+
 def command_pix2pixexport(args):
     pix2pix.export(args)
 
@@ -61,7 +64,7 @@ def main():
     commandStr = sys.argv[1]
     func = globals().get("command_"+commandStr)
     if func:
-        print ("\n########### Spell Client (version {}) ###########".format(__version__))
+        print ("########### Spell Client (version {}) ###########".format(__version__))
         args = sys.argv[2:] if len(sys.argv) > 2 else []
         try:
             #spell.cmdline.debug = True
