@@ -1,15 +1,17 @@
 import _thread
 import time
+import skimage
+import os
 from app import spell
 from app import utils
 from app import filesystem as localfs
 
 
+
+# Expects image pairs in dataset directory
 paths = {
     "imagesLocal": localfs.filepath("images"),
     "datasetLocal": localfs.filepath("images", "pix2pix-dataset"),
-    "datasetLocalA": localfs.filepath("images", "pix2pix-dataset", "A"),
-    "datasetLocalB": localfs.filepath("images", "pix2pix-dataset", "B"),
     "datasetRemote": "uploads/pix2pix-dataset"
 }
 
@@ -17,10 +19,6 @@ if not localfs.exists(paths["imagesLocal"]):
     localfs.mkdir(paths["imagesLocal"])
 if not localfs.exists(paths["datasetLocal"]): 
     localfs.mkdir(paths["datasetLocal"])
-if not localfs.exists(paths["datasetLocalA"]): 
-    localfs.mkdir(paths["datasetLocalA"])
-if not localfs.exists(paths["datasetLocalB"]): 
-    localfs.mkdir(paths["datasetLocalB"])
 
 
 def upload(machineType="CPU"):
@@ -29,54 +27,24 @@ def upload(machineType="CPU"):
     
     """
     print("Preparing to upload images...")
-    
-    # Run validation
-    if localfs.isEmpty(paths["datasetLocalA"]):
-        raise RuntimeError("Missing images in dataset folder A")
-    if localfs.isEmpty(paths["datasetLocalB"]):
-        raise RuntimeError("Missing images in dataset folder B")
+    if localfs.isEmpty(paths["datasetLocal"]):
+        raise RuntimeError("Missing images in dataset folder "+paths["datasetLocal"])
     def validateFilenames(names):
         for n in names:
             if " " in n:
                 raise ValueError("Image file names cannot contain spaces.") # TODO add non-alphanumeric character checking
-    validateFilenames(localfs.ls(paths["datasetLocalA"]))
-    validateFilenames(localfs.ls(paths["datasetLocalB"]))
+    validateFilenames(localfs.ls(paths["datasetLocal"]))
     spell.validateMachineType(machineType)
-    
-    # Upload
+    print("Removing alpha channel from images...")
+    for filename in os.listdir(paths["datasetLocal"]):
+        if not filename.startswith("."):
+            filepath = os.path.join(paths["datasetLocal"], filename)
+            img = skimage.io.imread(filepath)
+            imgNoAlpha = img[:,:,:3]
+            skimage.io.imsave(filepath, imgNoAlpha)
     print("Uploading. Please wait...")
     spell.upload(paths["datasetLocal"], paths["datasetRemote"])
-    time.sleep(5) # Wait for upload directory to be available for next step
-    
-    # Create image pairs
-    print("Processing images. Please wait...")
-    cmd = "python tools/process.py --input_dir dataset/A --b_dir dataset/B --operation combine --output_dir dataset/C"
-    run = spell.client.runs.new(
-        command = cmd, 
-        machine_type = machineType, 
-        github_url = "https://github.com/affinelayer/pix2pix-tensorflow.git",
-        attached_resources = {
-            paths["datasetRemote"]: "dataset"
-        }
-    )
-    spell.labelRun(run, "Pix2Pix image processing")
-    spell.waitUntilComplete(run)
-    runId = spell.getId(run)
-    localfs.cacheSet("pix2pixDatasetRunId", runId)
-    print("Done.")
-    
-
-
-def setDatasetRunId(pix2pixArgs):
-    """
-    Updates the dataset run id in the cache. 
-    
-    """
-    if not pix2pixArgs:
-        raise ValueError("Run id required")
-    if not utils.isInteger(pix2pixArgs[0]):
-        raise ValueError("Run id must be an integer")
-    localfs.cacheSet("pix2pixDatasetRunId", runId)
+    print("Upload complete.")
         
 
 def train(pix2pixArgs, machineType="K80"):
@@ -84,7 +52,7 @@ def train(pix2pixArgs, machineType="K80"):
     Runs a pix2pix model training job on Spell. See https://learn.spell.run/pix2pix
     
     """
-    print ("Preparing to train pix2pix model...")
+    print ("Preparing to train pix2pix model. Please wait...")
     
     # Run validation
     maxEpochs = 200
@@ -95,19 +63,15 @@ def train(pix2pixArgs, machineType="K80"):
     spell.validateMachineType(machineType)
     
     # Build the spell run command (from https://learn.spell.run/pix2pix but using remote git repo)
-    runId = localfs.cacheGet("pix2pixDatasetRunId")
-    if not runId:
-        raise RuntimeError("No dataset run ID found. Use the dataset run id command to set it first.")
     pix2pixCmd = "python pix2pix.py --mode train \
                 --max_epochs {} --which_direction BtoA \
                 --input_dir dataset --output_dir output --display_freq 50"
-    print ("Training...")
     run = spell.client.runs.new(
         command = pix2pixCmd.format(maxEpochs), 
         machine_type = machineType, 
         github_url = "https://github.com/affinelayer/pix2pix-tensorflow.git",
         attached_resources = {
-            "runs/{}/dataset/C".format(runId): "dataset"
+            paths["datasetRemote"]: "dataset"
         }
     )
     spell.labelRun(run, "Pix2Pix train")
