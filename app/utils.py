@@ -1,3 +1,6 @@
+import skimage
+import os
+
 
 def isInteger(var):
     try:
@@ -13,3 +16,10 @@ def isNumeric(var):
         return True
     except:
         return False
+
+
+def log(msg):
+    print("    {}".format(msg))
+
+    
+    

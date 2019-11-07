@@ -2,10 +2,12 @@
 import time
 import sys
 from app import spell
-from app import spellstyletransfer as styletransfer
-from app import spellpix2pix as pix2pix
 from app import utils
 from app._version import __version__
+from app.utils import log
+
+from app import spellstyletransfer as styletransfer
+from app import spellpix2pix as pix2pix
 
 
 ########################
@@ -36,6 +38,9 @@ def command_download(args):
 
 #### Pix2Pix ####
 
+def command_pix2piximagepairs(args):
+    pix2pix.imagepairs(args)
+
 def command_pix2pixupload(args):
     pix2pix.upload()
     
@@ -53,27 +58,29 @@ def command_pix2pixexport(args):
 
 
 
+
 ########################
 # Main
 ########################
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python run.py [command] [arguments]")
+        log("Usage: python run.py [command] [arguments]")
         sys.exit()
     commandStr = sys.argv[1]
     func = globals().get("command_"+commandStr)
     if func:
-        print ("########### Spell Client (version {}) ###########".format(__version__))
+        print("")
+        log("########### Spell Client (version {}) ###########".format(__version__))
         args = sys.argv[2:] if len(sys.argv) > 2 else []
-        try:
+        #try:
             #spell.cmdline.debug = True
-            func(args)
-        except Exception as e:
-            print(e)
+        func(args)
+        #except Exception as e:
+        #    print(e)
         print("\n")
     else:
-        print("No such command [{}]".format(commandStr))
+        log("No such command [{}]".format(commandStr))
         print("\n")
         sys.exit()
 

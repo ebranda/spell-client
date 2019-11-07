@@ -3,6 +3,7 @@ import time
 import sys
 import webbrowser
 from app import utils
+from app.utils import log
 from app import spell
 from app import filesystem as localfs
 
@@ -35,20 +36,20 @@ if not localfs.exists(paths["contentDirLocal"]):
 
         
 def upload(machineType="CPU"):
-    print("Uploading images...")
+    log("Uploading images...")
     # Run validation
     _validateLocal()
     spell.validateMachineType(machineType)
     # Do upload
     spell.upload(paths["imagesBaseLocal"], paths["imagesBaseRemote"])
-    print("Upload complete.")
+    log("Upload complete.")
 
 
 def transfer(neuralArgs, machineType="K80"):
-    print ("Preparing to transfer...")
+    log ("Preparing to transfer...")
     _validateNeuralArgs(neuralArgs)
     spell.validateMachineType(machineType)
-    print("Transferring style. Please wait...")
+    log("Transferring style. Please wait...")
     styleImg = localfs.ls(paths["stylesDirLocal"])[0]
     contentImg = localfs.ls(paths["contentDirLocal"])[0]
     neuralStyleCmd = _neuralStyleCmd(neuralArgs, styleImg, contentImg)
@@ -67,19 +68,19 @@ def transfer(neuralArgs, machineType="K80"):
         f.write("{} = {}\n".format("Command", "python "+sys.argv[0]+" transfer "+" ".join(neuralArgs)))
         f.write("{} = {}\n".format("Style image", styleImg))
         f.write("{} = {}\n".format("Content image", contentImg))
-    print(spell.getRunStartedMessage(run))
+    log(spell.getRunStartedMessage(run))
     msg = "When run has completed, run the command 'python run.py download {}'"
     msg += "\nto download the result file to images/results folder."
-    print(msg.format(runId))
+    log(msg.format(runId))
     #if input("Open runs page in browser? [y|n]: ") == "y":
     #    webbrowser.open_new_tab(spell.getRunsPageURL())
 
       
 def hyperparamSearch(neuralArgs, machineType="K80"):
-    print ("Preparing to search hyperparameters...")
+    log ("Preparing to search hyperparameters...")
     _validateNeuralArgs(neuralArgs)
     spell.validateMachineType(machineType)
-    print("Building hyperparameter grid. Please wait...")
+    log("Building hyperparameter grid. Please wait...")
     if neuralArgs:
         neuralArgs = neuralArgs[0:1]
     neuralArgs.append(":STYLE_WEIGHT:")
@@ -102,7 +103,7 @@ def hyperparamSearch(neuralArgs, machineType="K80"):
     msg = "Search {} has started. Visit https://web.spell.run/{}/hyper-searches for progress."
     msg += "\nWhen all runs have completed, execute 'python run.py download [run-number]'"
     msg += "\nfor each run in the search to download the result files to images/results folder."
-    print(msg.format(search.id, spell.getUsername()))
+    log(msg.format(search.id, spell.getUsername()))
     if input("Open searches page in browser? [y|n]: ") == "y":
         webbrowser.open_new_tab(spell.getHypersearchesPageURL())
 
@@ -113,14 +114,14 @@ def download(args):
     for arg in args:
         if not utils.isInteger(arg):
             raise ValueError("Run number must be an integer")
-    print ("Fetching remote files...")
+    log ("Fetching remote files...")
     if not localfs.exists(paths["resultsDirLocal"]):
         localfs.mkdir(paths["resultsDirLocal"])
     for runNumber in args:
         spell.download("runs/{}/image_output/result/result.png".format(runNumber))
         targetPath = localfs.filepath(paths["resultsDirLocal"], "result-{}.png".format(runNumber))
         localfs.mv("result.png", targetPath)
-        print ("Saved result file [{}]".format(targetPath))
+        log ("Saved result file [{}]".format(targetPath))
 
 
 def _mounts():

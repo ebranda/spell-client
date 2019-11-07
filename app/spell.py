@@ -3,6 +3,7 @@ import time
 import sys
 from app import commandline as cmdline
 from app import utils
+from app.utils import log
 
 import spell.client
 from spell.api.models import ValueSpec
@@ -38,6 +39,12 @@ def getRunStartedMessage(run):
     return msg.format(runId, getUsername(run), runId)
 
 
+def getKillRunMessage(run):
+    runId = getId(run)
+    msg = "Enter the command 'spell kill {}' to kill the run if you started it by mistake."
+    return msg.format(runId)
+
+
 def getRunsPageURL():
     return "https://web.spell.run/{}/runs".format(getUsername())
 
@@ -51,10 +58,10 @@ def labelRun(run, labelName):
 
 
 def systemcheck():
-    print("Welcome. Use this application to communicate with the Spell environment.")
-    print("Communicating with Spell...")
-    print("  Welcome, "+whoami())
-    print("System check successful.")
+    log("Welcome. Use this application to communicate with the Spell environment.")
+    log("Communicating with Spell...")
+    log("  Welcome, "+whoami())
+    log("System check successful.")
 
     
 def rm(path):

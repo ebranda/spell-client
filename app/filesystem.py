@@ -15,6 +15,8 @@ def mv(sourcePath, targetPath):
     os.rename(sourcePath, targetPath)
 
 def mkdir(path):
+    if exists(path):
+        return
     os.mkdir(path)
     
 def isEmpty(dirpath):
@@ -27,11 +29,25 @@ def exists(path):
     return os.path.exists(path)
 
 def rm(path):
-    if path.startswith("../") or path.startswith("/"):
-        print("Stubbornly refusing to delete directories above this one")
+    if not exists(path):
         return
+    if path.startswith("../") or path.startswith("/"):
+        raise RuntimeError("Stubbornly refusing to delete directories above this one")
     shutil.rmtree(path)
 
+def is_type(filename, extensions):
+    for ext in extensions:
+        if filename.endswith(ext):
+            return True
+    return False
+    
+def find_first(dir_path, file_names):
+    if exists(dir_path):
+        file_names_lower = [fname.lower() for fname in file_names]
+        for fname in ls(dir_path):
+            if fname.lower() in file_names_lower:
+                return fname
+    return None
 
 def cacheSet(key, val):
     d = filepath("app", "cache")
