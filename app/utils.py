@@ -42,6 +42,10 @@ def argequals(args, i, val):
         return False
 
 
+def getstr(args, i, optional=False):
+    return str(getarg(args, i, optional))
+
+
 def getarg(args, i, optional=False, typecallback=None):
     arg_exists = len(args) > i
     if not optional and not arg_exists:
