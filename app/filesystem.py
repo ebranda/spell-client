@@ -8,18 +8,18 @@ def filepath(segment, *segments):
 def name(path):
     return os.path.split(path)[-1]
 
-def isFile(path):
+def is_file(path):
     return os.path.isfile(path)
 
-def mv(sourcePath, targetPath):
-    os.rename(sourcePath, targetPath)
+def mv(source_path, target_path):
+    os.rename(source_path, target_path)
 
 def mkdir(path):
     if exists(path):
         return
     os.mkdir(path)
     
-def isEmpty(dirpath):
+def isempty(dirpath):
     return len(ls(dirpath)) == 0
     
 def ls(dirpath):
@@ -35,13 +35,13 @@ def rm(path):
         raise RuntimeError("Stubbornly refusing to delete directories above this one")
     shutil.rmtree(path)
 
-def is_type(filename, extensions):
+def istype(filename, extensions):
     for ext in extensions:
         if filename.endswith(ext):
             return True
     return False
     
-def find_first(dir_path, file_names):
+def findfirst(dir_path, file_names):
     if exists(dir_path):
         file_names_lower = [fname.lower() for fname in file_names]
         for fname in ls(dir_path):
@@ -49,20 +49,20 @@ def find_first(dir_path, file_names):
                 return fname
     return None
 
-def cacheSet(key, val):
+def cacheset(key, val):
     d = filepath("app", "cache")
     if not exists(d):
         mkdir(d)
-    cacheFile = filepath(d, key)
-    f = open(cacheFile, "w")
+    cache_file = filepath(d, key)
+    f = open(cache_file, "w")
     f.write(str(val))
     f.close()
 
 
-def cacheGet(key):
-    cacheFile = filepath("app", "cache", key)
-    if exists(cacheFile):
-        f = open(cacheFile, "r")
+def cacheget(key):
+    cache_file = filepath("app", "cache", key)
+    if exists(cache_file):
+        f = open(cache_file, "r")
         return f.read()
     return None
 

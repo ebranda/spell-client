@@ -10,54 +10,54 @@ from spell.api.models import ValueSpec
 client = spell.client.from_environment()
 
 
-def getValueSpec(values):
+def get_value_spec(values):
     return ValueSpec(values)
 
 
-def getUsername(run=None):
+def get_username(run=None):
     if run:
         return run.run.creator.user_name
     else:
         return client.api.owner
 
     
-def getId(run):
+def get_id(run):
     return run.run.id
 
 
-def waitUntilRunning(run):
+def wait_until_running(run):
     run.wait_status(client.runs.RUNNING)
 
 
-def waitUntilComplete(run):
+def wait_until_complete(run):
     run.wait_status(client.runs.COMPLETE)
 
 
-def getRunStartedMessage(run):
-    runId = getId(run)
+def get_run_started_message(run):
+    runId = get_id(run)
     msg = "Run {} has started. Visit http://web.spell.run/{}/runs/{} to check progress."
-    return msg.format(runId, getUsername(run), runId)
+    return msg.format(runId, get_username(run), runId)
 
 
-def getKillRunMessage(run):
-    runId = getId(run)
+def get_kill_run_message(run):
+    runId = get_id(run)
     msg = "Enter the command 'spell kill {}' to kill the run if you started it by mistake."
     return msg.format(runId)
 
 
-def getRunsPageURL():
-    return "https://web.spell.run/{}/runs".format(getUsername())
+def get_runs_page_url():
+    return "https://web.spell.run/{}/runs".format(get_username())
 
 
-def getHypersearchesPageURL():
-    return "https://web.spell.run/{}/hyper-searches".format(getUsername())
+def get_hypersearches_page_url():
+    return "https://web.spell.run/{}/hyper-searches".format(get_username())
 
 
-def labelRun(run, labelName):
-    client.api.add_label_for_run(getId(run), labelName)
+def label_run(run, labelName):
+    client.api.add_label_for_run(get_id(run), labelName)
 
 
-def systemcheck():
+def system_check():
     log("Welcome. Use this application to communicate with the Spell environment.")
     log("Communicating with Spell...")
     log("  Welcome, "+whoami())
@@ -92,10 +92,10 @@ def upload(localpath, remotepath):
 
 
 def whoami():
-    return client.api.owner
+    return client.api.owner # TODO this is not an effective system check because this value is cached locally.
 
 
-def validateMachineType(t):
+def validate_machine_type(t):
     if t not in ["CPU", "K80"]:
         raise ValueError("Machine type must be CPU or K80")
 
@@ -107,9 +107,9 @@ def hypergrid(params, arg):
     cmdline.send(cmd)
 
    
-def _flatten(paramsDict):
+def _flatten(params_dict):
     l = []
-    for k, v in paramsDict.items():
+    for k, v in params_dict.items():
         if not isinstance(v, list):
             v = [v]
         for val in v:
@@ -118,40 +118,13 @@ def _flatten(paramsDict):
     return l
 
 
-def download(path, targetDir=None):
+def download(path, targetdir=None):
     cmd = "spell cp {}".format(path)
-    if targetDir:
-        cmd += " {}".format(targetDir)
+    if targetdir:
+        cmd += " {}".format(targetdir)
     cmdline.send(cmd)
     
     
 
-
-
-
-
-'''
-
-def run_OBS(params, arg):
-    cmd = ["spell", "run"]
-    cmd.extend(_flatten(params))
-    cmd.append(arg)
-    cmdline.send(cmd)
-
-def _getActiveRunId_OBS():
-    runMeta = [line for line in cmdline.send("spell ls runs").splitlines()]
-    activeRunIds = [line.split(" ")[-2] for line in runMeta if "active" in line]
-    if not activeRunIds: return None
-    return activeRunIds[-1]
-
-def waitForActiveRunId_OBS():
-    runId = _getActiveRunId()
-    attempts = 0
-    while not runId and attempts < 10:
-        attempts += 1
-        time.sleep(2)
-        runId = _getActiveRunId()
-    return runId
-'''
 
 

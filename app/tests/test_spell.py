@@ -2,8 +2,8 @@ import unittest
 from app import main
 from app import spell
 
-
-class TestSpell(unittest.TestCase):
+# class TestSpell(unittest.TestCase):
+class TestSpell(object):
     
     def test_flatten(self):
         params = {

@@ -4,9 +4,9 @@ import os
 import skimage
 
 
-def strip_img_alpha_channel(img_dir_path, extensions=[".jpg", ".jpeg", ".png"]):
+def strip_alpha_channel(img_dir_path, extensions=[".jpg", ".jpeg", ".png"]):
     for filename in os.listdir(img_dir_path):
-        if not fs.is_type(filename, extensions):
+        if not fs.istype(filename, extensions):
             continue
         filepath = os.path.join(img_dir_path, filename)
         img = skimage.io.imread(filepath)
@@ -70,12 +70,12 @@ def rotate(img, angle_deg_ortho):
 
 
 def flip(img, flip_h, flip_v):
-    img_flipped = img
+    flipped = img
     if flip_h:
-        img_flipped = img_flipped.transpose(Image.FLIP_LEFT_RIGHT)
+        flipped = flipped.transpose(Image.FLIP_LEFT_RIGHT)
     if flip_v:
-        img_flipped = img_flipped.transpose(Image.FLIP_TOP_BOTTOM)
-    return img_flipped
+        flipped = flipped.transpose(Image.FLIP_TOP_BOTTOM)
+    return flipped
 
 
 
