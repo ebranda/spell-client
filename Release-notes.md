@@ -9,6 +9,6 @@ Version 0.2 - 2019-10-29
 Version 0.2.1 - 2019-11-02
 - Modified Pix2Pix so that it expects image pairs as single A/B images in a single dataset folder.
 
-Version 0.2.2
+Version 0.2.2 - 2019-11-10
 - Added support for multiple style images in Style Transfer.
 - Renamed commands for consistency.
