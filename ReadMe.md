@@ -12,6 +12,8 @@ Use this code to execute style transfer tasks as Spell remote runs and download 
 2. In the terminal, `cd` to the `spell-style-transfer` folder you extracted in step 5 above.
 3. Run a Spell command (see below).
 
+TODO this needs to be updated to reflect latest command syntax
+
 Execute commands using the syntax `python run.py [command]`. The following commands are available:
 * `systemcheck` - Checks that all parts of your system are up and running. Example: `python run.py systemcheck`
 * `transfer [size] [style_weight] [temporal_weight]` - Run style transfer on the two images currently located in `styles` and `content` folders. Parameters are optional. Examples: 

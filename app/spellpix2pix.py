@@ -83,8 +83,8 @@ def image_pairs(args):
         img_a_path = localfs.filepath(output_dir_a, a)
         img_b_path = localfs.filepath(output_dir_b, b)
         imageutils.create_pair(pairs_dir_path, img_a_path, img_b_path, a, b)
-    localfs.rm(output_dir_a)
-    localfs.rm(output_dir_b)
+    #localfs.rm(output_dir_a)
+    #localfs.rm(output_dir_b)
     for fname in localfs.ls(pairs_dir_path):
         fpath = localfs.filepath(pairs_dir_path, fname)
         fpath_new = localfs.filepath(paths["datasetlocal"], fname)
