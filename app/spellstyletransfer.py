@@ -37,15 +37,38 @@ def upload():
 
 
 def transfer(args):
-    log("Transferring style. Please wait...")
+    MAX_NUM_RUNS = 3
     img_group_name = getstr(args, 0)
+    if img_group_name == "all":
+        groups = spell.ls(paths["imagesBaseRemote"])
+        if not groups:
+            raise ValueError("No image groups found in remote directory. Make sure you uploaded some images first.")
+        if len(groups) > MAX_NUM_RUNS:
+            groups = groups[0:MAX_NUM_RUNS]
+        log("Transferring style for image sets {}...".format(groups))
+    else:
+        groups = [img_group_name]
     neural_args = args[1:]
+    run_ids = []
+    for g in groups:
+        run_id = _transfer(g, neural_args)
+        run_ids.append(run_id)
+    if len(run_ids) > 1:
+        log("When runs have completed, run the command 'python run.py stdownload {}-{}'".format(run_ids[0], run_ids[-1]))
+    else:
+        log("When run has completed, run the command 'python run.py stdownload {}'".format(run_id))
+    log("to download the results to your images/results folder.")
+    #if input("Open runs page in browser? [y|n]: ") == "y":
+    #    webbrowser.open_new_tab(spell.get_runs_page_url())
+
+
+def _transfer(img_group_name, neural_args):
     _validate_neural_args(neural_args)
-    imgs_base_dir = localfs.filepath(paths["imagesBaseLocal"], img_group_name)
-    style_imgs_dir = localfs.filepath(imgs_base_dir, "styles")
-    style_imgs = localfs.ls(style_imgs_dir)
-    content_img_dir = localfs.filepath(imgs_base_dir, "content")
-    content_img = localfs.ls(content_img_dir)[0]
+    imgs_base_dir = "{}/{}".format(paths["imagesBaseRemote"], img_group_name)
+    style_imgs_dir = "{}/{}".format(imgs_base_dir, "styles")
+    style_imgs = spell.ls(style_imgs_dir)
+    content_img_dir = "{}/{}".format(imgs_base_dir, "content")
+    content_img = spell.ls(content_img_dir)[0]
     neural_style_cmd = _neural_style_cmd(neural_args, style_imgs, content_img)
     run = spell.client.runs.new(
         command = neural_style_cmd,
@@ -59,15 +82,12 @@ def transfer(args):
     logFilePath = localfs.filepath(paths["resultsDirLocal"], "log-run-{}.txt".format(run_id))
     with open(logFilePath, "w") as f:
         f.write("{} = {}\n".format("Run ID", run_id))
-        f.write("{} = {}\n".format("Command", "python "+sys.argv[0]+" sttransfer " + (" ".join(args))))
+        f.write("{} = {}\n".format("Command", "python {}".format(" ".join(sys.argv))))
         f.write("{} = {}\n".format("Image group", img_group_name))
         f.write("{} = {}\n".format("Style images", " ".join(style_imgs)))
         f.write("{} = {}\n".format("Content image", content_img))
     log(spell.get_run_started_message(run))
-    log("When run has completed, run the command 'python run.py stdownload {}'".format(run_id))
-    log("to download the result file to images/results folder.")
-    #if input("Open runs page in browser? [y|n]: ") == "y":
-    #    webbrowser.open_new_tab(spell.get_runs_page_url())
+    return run_id
 
       
 def hyperparam_search(args):
@@ -181,8 +201,9 @@ def _neural_style_cmd(args, style_imgs, content_img):
         cmd += " --style_imgs_weights " + " ".join(weights)
     if len(args) > 0:
         cmd += " --max_size " + str(getint(args, 0, 512))
+    style_weight = args[1] if len(args) > 1 else "1000000"
     if len(args) > 1:
-        cmd += " --style_weight "+args[1]
+        cmd += " --style_weight "+style_weight
     if len(args) > 2:
         cmd += " --temporal_weight "+args[2]
     return cmd

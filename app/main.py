@@ -23,34 +23,34 @@ def command_systemcheck(args):
 
 #### Style Transfer ####
 
-def command_stupload(args):
+def command_st_upload(args):
     styletransfer.upload()
 
-def command_sttransfer(args):
+def command_st_transfer(args):
     styletransfer.transfer(args)
 
-def command_sthyperparams(args):
+def command_st_hyperparams(args):
     styletransfer.hyperparam_search(args)
       
-def command_stdownload(args):
+def command_st_download(args):
     styletransfer.download(args)
 
 
 #### Pix2Pix ####
 
-def command_p2pimagepairs(args):
+def command_p2p_imagepairs(args):
     pix2pix.image_pairs(args)
 
-def command_p2pupload(args):
+def command_p2p_upload(args):
     pix2pix.upload()
 
-def command_p2ptrain(args):
+def command_p2p_train(args):
     pix2pix.train(args)
 
-def command_p2pdownloadlatest(args):
+def command_p2p_downloadlatest(args):
     pix2pix.download_latest(args)
 
-def command_p2pexport(args):
+def command_p2p_export(args):
     pix2pix.export(args)
 
 

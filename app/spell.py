@@ -73,7 +73,9 @@ def rm(path):
 
 def ls(path):
     listing = cmdline.send("spell ls "+path)
-    return [line.split(" ")[-1] for line in listing.splitlines()]
+    files = [line.split(" ")[-1] for line in listing.splitlines()]
+    files = [f[0:-1] if f.endswith("/") else f for f in files] # Remove trailing slash if one exists
+    return files
 
 
 def exists(path):
