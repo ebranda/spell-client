@@ -10,7 +10,7 @@ Use this code to execute style transfer tasks as Spell remote runs and download 
 
 ## Running commands
 
-###Command: Neural Style Transfer
+### Command: Neural Style Transfer
 
 This code uses the Neural Style TF method used in the official Spell tutorial (https://learn.spell.run/transferring_style, which uses https://github.com/cysmith/neural-style-tf).
 
