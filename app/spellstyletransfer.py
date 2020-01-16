@@ -6,6 +6,7 @@ from app import utils
 from app.utils import log, getstr, getint, getfloat, checkint, checknumeric
 from app import spell
 from app import filesystem as localfs
+from app import params
 
 
 
@@ -37,9 +38,10 @@ def upload():
 
 
 def transfer(args):
+    log("Running style transfer...")
     MAX_NUM_RUNS = 3
-    img_group_name = getstr(args, 0)
-    if img_group_name == "all":
+    img_group_name = getstr(args, 0, True)
+    if not img_group_name or img_group_name == "all":
         groups = spell.ls(paths["imagesBaseRemote"])
         if not groups:
             raise ValueError("No image groups found in remote directory. Make sure you uploaded some images first.")
@@ -48,7 +50,17 @@ def transfer(args):
         log("Transferring style for image sets {}...".format(groups))
     else:
         groups = [img_group_name]
-    neural_args = args[1:]
+    quality = getstr(args, 1, True)
+    if not quality:
+        quality = "med"
+    param_presets = {
+        "low": params.neural_style_transfer_low,
+        "med": params.neural_style_transfer_med,
+        "high": params.neural_style_transfer_high,
+    }
+    if quality not in param_presets.keys():
+        raise ValueError("Quality parameter must be one of {}".format(list(param_presets.keys())))
+    neural_args = param_presets[quality]
     run_ids = []
     for g in groups:
         run_id = _transfer(g, neural_args)
@@ -63,7 +75,6 @@ def transfer(args):
 
 
 def _transfer(img_group_name, neural_args):
-    _validate_neural_args(neural_args)
     imgs_base_dir = "{}/{}".format(paths["imagesBaseRemote"], img_group_name)
     style_imgs_dir = "{}/{}".format(imgs_base_dir, "styles")
     style_imgs = spell.ls(style_imgs_dir)
@@ -83,6 +94,7 @@ def _transfer(img_group_name, neural_args):
     with open(logFilePath, "w") as f:
         f.write("{} = {}\n".format("Run ID", run_id))
         f.write("{} = {}\n".format("Command", "python {}".format(" ".join(sys.argv))))
+        f.write("{} = {}\n".format("Parameters", neural_args))
         f.write("{} = {}\n".format("Image group", img_group_name))
         f.write("{} = {}\n".format("Style images", " ".join(style_imgs)))
         f.write("{} = {}\n".format("Content image", content_img))
@@ -93,26 +105,21 @@ def _transfer(img_group_name, neural_args):
 def hyperparam_search(args):
     log("Building hyperparameter grid. Please wait...")
     img_group_name = getstr(args, 0)
-    neural_args = [getstr(args, 1)]
-    _validate_neural_args(neural_args)
-    neural_args.append(":STYLE_WEIGHT:")
-    neural_args.append(":TEMPORAL_WEIGHT:")
-    if len(args) >= 3:
-        style_weights = args[2:]
-    else:
-        style_weights = ["100","500","1000", "5000", "10000", "100000"]
     imgs_base_dir = localfs.filepath(paths["imagesBaseLocal"], img_group_name)
     style_imgs_dir = localfs.filepath(imgs_base_dir, "styles")
     style_imgs = localfs.ls(style_imgs_dir)
     content_img_dir = localfs.filepath(imgs_base_dir, "content")
     content_img = localfs.ls(content_img_dir)[0]
+    neural_args = params.neural_style_hypergrid
     neural_style_cmd = _neural_style_cmd(neural_args, style_imgs, content_img)
+    neural_style_cmd += " --style_weight :STYLE_WEIGHT:"
+    neural_style_cmd += " --temporal_weight :TEMPORAL_WEIGHT:"
     search = spell.client.hyper.new_grid_search(
         {
             #"STYLE_WEIGHT": spell.get_value_spec(["1e4","1e1","1e7"]), 
             #"TEMPORAL_WEIGHT": spell.get_value_spec(["2e2","2e6","2e-2"])
-            "STYLE_WEIGHT": spell.get_value_spec(style_weights),
-            "TEMPORAL_WEIGHT": spell.get_value_spec(["2e1"])
+            "STYLE_WEIGHT": spell.get_value_spec(neural_args.style_weights),
+            "TEMPORAL_WEIGHT": spell.get_value_spec(neural_args.temporal_weights)
         },
         command = neural_style_cmd, 
         machine_type = "K80", 
@@ -126,6 +133,7 @@ def hyperparam_search(args):
         f.write("{} = {}\n".format("Search ID", search.id))
         f.write("{} = {}\n".format("Command", "python "+sys.argv[0]+" sthyperparams " + (" ".join(args))))
         f.write("{} = {}\n".format("Image group", img_group_name))
+        f.write("{} = {}\n".format("Parameters", neural_args))
         f.write("{} = {}\n".format("Style images", " ".join(style_imgs)))
         f.write("{} = {}\n".format("Content image", content_img))
     msg = "Hyperparameter search {} has started. Visit https://web.spell.run/{}/hyper-searches/{} for progress."
@@ -197,15 +205,11 @@ def _neural_style_cmd(args, style_imgs, content_img):
     cmd = "python neural_style.py --style_imgs {} --content_img {}"
     cmd = cmd.format(" ".join(style_imgs), content_img)
     if len(style_imgs) > 1:
-        weights = [str(round(1.0 / len(style_imgs), 2)) for img in style_imgs]
-        cmd += " --style_imgs_weights " + " ".join(weights)
-    if len(args) > 0:
-        cmd += " --max_size " + str(getint(args, 0, 512))
-    style_weight = args[1] if len(args) > 1 else "1000000"
-    if len(args) > 1:
-        cmd += " --style_weight "+style_weight
-    if len(args) > 2:
-        cmd += " --temporal_weight "+args[2]
+        weights = [str(round(1.0 / len(style_imgs), 2)) for img in style_imgs] # Assume equal weights
+        cmd += " --style_imgs_weights {}".format(" ".join(weights))
+    for key in args:
+        if key.startswith("--"):
+            cmd += " {} {}".format(key, args[key])
     return cmd
 
 

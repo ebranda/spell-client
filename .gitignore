@@ -8,6 +8,7 @@ images/
 images/results-archive
 images/style-transfer-images-inactive
 images/image-library
+params.py
 */.DS_Store
 .DS_Store
 *~

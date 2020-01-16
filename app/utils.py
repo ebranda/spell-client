@@ -43,7 +43,8 @@ def argequals(args, i, val):
 
 
 def getstr(args, i, optional=False):
-    return str(getarg(args, i, optional))
+    val = getarg(args, i, optional)
+    return str(val) if val else None
 
 
 def getarg(args, i, optional=False, typecallback=None):
