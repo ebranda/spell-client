@@ -40,16 +40,12 @@ def upload():
 def transfer(args):
     log("Running style transfer...")
     MAX_NUM_RUNS = 3
-    img_group_name = getstr(args, 0, True)
-    if not img_group_name or img_group_name == "all":
-        groups = spell.ls(paths["imagesBaseRemote"])
-        if not groups:
-            raise ValueError("No image groups found in remote directory. Make sure you uploaded some images first.")
-        if len(groups) > MAX_NUM_RUNS:
-            groups = groups[0:MAX_NUM_RUNS]
-        log("Transferring style for image sets {}...".format(groups))
-    else:
-        groups = [img_group_name]
+    groups = spell.ls(paths["imagesBaseRemote"])
+    if not groups:
+        raise ValueError("No image groups found in remote directory. Make sure you uploaded some images first.")
+    if len(groups) > MAX_NUM_RUNS:
+        groups = groups[0:MAX_NUM_RUNS]
+    log("Transferring style for image sets {}...".format(groups))
     quality = getstr(args, 1, True)
     if not quality:
         quality = "med"
