@@ -80,7 +80,7 @@ def _transfer(img_group_name, neural_args):
     run = spell.client.runs.new(
         command = neural_style_cmd,
         machine_type = "K80", 
-        github_url = "https://github.com/cysmith/neural-style-tf",
+        github_url = "https://github.com/ebranda/neural-style-tf",
         attached_resources = _mounts(img_group_name)
     )
     spell.wait_until_running(run)
