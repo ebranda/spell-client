@@ -15,25 +15,54 @@ Use this code to execute style transfer tasks as Spell remote runs and download 
 This code uses the Neural Style TF method used in the official Spell tutorial (https://learn.spell.run/transferring_style, which uses https://github.com/cysmith/neural-style-tf).
 
 1. Prepare your image folders. Create a folder inside `images/style-transfer-images/`. Give this folder a descriptive name and number (e.g. `Rome-LA-01`). Inside your new folder, create a new folder called `styles` and another called `content`. Put your style and content images inside these folders.
-2. In the terminal, `cd` to the `spell-client` folder you extracted in step 5 above.
-3. Run a Spell command (see below).
+2. Repeat step 1 with up to three image folders.
+3. In the terminal, `cd` to the `spell-client` folder you extracted in step 5 above.
+4. Run a Spell command (see below).
+
+Execute commands using the syntax `python run.py [command]`.
+
+#### Style Transfer Commands:
 
 
-Execute commands using the syntax `python run.py [command]`. The following commands are available:
+* `systemcheck` Checks that your system is up and running and can communicate with Spell.
+* `st_upload` Uploads any sets of images currently in your `images/style-transfer-images/` folder.
+* `st_transfer [quality=low|med|high (default=med)]` Runs style transfer on all uploaded image folders (max 3)
+* `st_download [runId_1][-[runId_end]]` Downloads the output file from run `[runid]` to the local folder `images/results`. You can download the outputs from multiple runs by listing a range of run ids.
 
-* `systemcheck` - Checks that your system is up and running and can communicate with Spell. Example: `python run.py systemcheck`
-* `st_upload` - Upload any sets of images currently in your `images/style-transfer-images/` folder.
-* `st_transfer [image_folder_name] [size] [style_weight] [temporal_weight]` - Run style transfer on the specified image folder. Parameters other than `img_folder_name` are optional. If you provide `all` as the image folder name, the transfer command will be automatically run on the first three uploaded folders. Examples: 
-	- `python run.py st_transfer Rome-LA-01`  
-	- `python run.py st_transfer Rome-LA-01 500` 
-	- `python run.py st_transfer Rome-LA-01 500 10000 0.02`
-	- `python run.py st_transfer all`
-	- `python run.py st_transfer all 500`
-* `hyperparams [size] [style_weight] [temporal_weight]` - Create a grid of 9 images using various parameters. Use this to determine the correct `transfer` parameters to start with. Parameters are optional. Examples: 
-	- `python run.py st_hyperparams`  
-	- `python run.py st_hyperparams 500` 
-	- `python run.py st_hyperparams 500 10000 0.02`
-* `st_download [runId_1][-[runId_end]]` - Downloads the output file from run `[runid]` to the local folder `images/results`. You can download the outputs from multiple runs by listing a range of run ids. Examples: 
-	- `python run.py st_download 54`
-	- `python run.py st_download 54-57` 
+#### Examples:
+
+*Run system check:*
+```
+python run.py systemcheck
+```
+
+*Upload all image folders inside images/style-transfer-images:*
+```
+python run.py st_upload
+```
+
+*Run style transfer on uploaded image folders at medium quality (800 iterations):*
+```
+python run.py st_transfer
+```
+
+*Run style transfer on uploaded image folders at high quality (2000 iterations):*
+```
+python run.py st_transfer high
+```
+
+*Run style transfer on uploaded image folders at low quality (400 iterations):*
+```
+python run.py st_transfer low
+```
+
+*Download the output file from run 54 to the local folder images/results:*
+```
+python run.py st_download 54
+```
+
+*Download the output files from runs 54 through 60 to the local folder images/results:*
+```
+python run.py st_download 54-60
+```
 

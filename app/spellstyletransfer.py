@@ -66,9 +66,9 @@ def transfer(args):
         run_id = _transfer(g, neural_args)
         run_ids.append(run_id)
     if len(run_ids) > 1:
-        log("When runs have completed, run the command 'python run.py stdownload {}-{}'".format(run_ids[0], run_ids[-1]))
+        log("When runs have completed, run the command 'python run.py st_download {}-{}'".format(run_ids[0], run_ids[-1]))
     else:
-        log("When run has completed, run the command 'python run.py stdownload {}'".format(run_id))
+        log("When run has completed, run the command 'python run.py st_download {}'".format(run_id))
     log("to download the results to your images/results folder.")
     #if input("Open runs page in browser? [y|n]: ") == "y":
     #    webbrowser.open_new_tab(spell.get_runs_page_url())
