@@ -46,7 +46,7 @@ def transfer(args):
     if len(groups) > MAX_NUM_RUNS:
         groups = groups[0:MAX_NUM_RUNS]
     log("Transferring style for image sets {}...".format(groups))
-    quality = getstr(args, 1, True)
+    quality = getstr(args, 0, True)
     if not quality:
         quality = "med"
     param_presets = {
